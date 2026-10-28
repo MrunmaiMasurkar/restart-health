@@ -80,6 +80,7 @@ function App() {
     }
   }
 
+
   async function handleCheckIn(event) {
     event.preventDefault();
     setCheckInMessage("");
@@ -109,16 +110,39 @@ function App() {
         );
       }
 
-      await response.json();
-      setCheckInMessage("Your daily check-in has been saved! 🌱");
+      const savedCheckIn = await response.json();
+
       setNote("");
       setBarrier("");
+
+      if (savedCheckIn.status === "missed") {
+        setCheckInMessage("Check-in saved! Finding a helpful suggestion...");
+
+        const suggestionResponse = await fetch(
+          `${API_URL}/check-ins/${savedCheckIn.id}/suggestion`
+        );
+
+        if (!suggestionResponse.ok) {
+          throw new Error(
+            "Your check-in was saved, but the suggestion could not be loaded. Please try again later."
+          );
+        }
+
+        const suggestionData = await suggestionResponse.json();
+
+        setCheckInMessage(
+          `Your check-in is saved. Here's an idea to try: ${suggestionData.suggestion}`
+        );
+      } else {
+        setCheckInMessage("Your daily check-in has been saved! 🌱");
+      }
     } catch (error) {
       setError(error.message || "Could not save your check-in.");
     } finally {
       setCheckInSaving(false);
     }
   }
+
 
   return (
     <main>
