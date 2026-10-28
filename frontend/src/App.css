@@ -253,3 +253,113 @@ button:disabled {
   border-color: #26734d;
   outline: 2px solid #d9ecdd;
 }
+
+
+/* Progress dashboard */
+.progress-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 24px 0 30px;
+}
+
+.progress-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 16px;
+  border: 1px solid #e1e9df;
+  border-radius: 14px;
+  background: #f8fbf6;
+}
+
+.progress-card span {
+  color: #657268;
+  font-size: 0.88rem;
+}
+
+.progress-card strong {
+  color: #26734d;
+  font-size: 2rem;
+}
+
+/* Check-in history */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.history-card {
+  padding: 18px;
+  border: 1px solid #e1e9df;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.history-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.history-header strong {
+  color: #24352c;
+}
+
+.status {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #edf1ec;
+  color: #344b3d;
+  font-size: 0.78rem;
+  text-transform: capitalize;
+}
+
+.status-completed {
+  background: #e3f4e6;
+  color: #26734d;
+}
+
+.status-partially_completed {
+  background: #fff1d6;
+  color: #865b0c;
+}
+
+.status-missed {
+  background: #fff0ed;
+  color: #a33427;
+}
+
+.history-card p {
+  margin: 12px 0 0;
+  color: #657268;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.history-card .history-detail {
+  font-size: 0.88rem;
+}
+
+.success-message {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #e7f3e9;
+  color: #26734d;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .progress-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .history-header {
+    flex-direction: column;
+  }
+}

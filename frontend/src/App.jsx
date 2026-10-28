@@ -6,6 +6,7 @@ const API_URL = "http://127.0.0.1:8000";
 
 function App() {
   const [habits, setHabits] = useState([]);
+  const [checkIns, setCheckIns] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -22,22 +23,33 @@ function App() {
   const [checkInSaving, setCheckInSaving] = useState(false);
 
   useEffect(() => {
-    fetchHabits();
+    loadData();
   }, []);
 
-  async function fetchHabits() {
+  async function loadData() {
+    setLoading(true);
+
     try {
       setError("");
-      const response = await fetch(`${API_URL}/goals`);
 
-      if (!response.ok) {
-        throw new Error("Could not load your habits.");
+      const [habitsResponse, checkInsResponse] = await Promise.all([
+        fetch(`${API_URL}/goals`),
+        fetch(`${API_URL}/check-ins`),
+      ]);
+
+      if (!habitsResponse.ok || !checkInsResponse.ok) {
+        throw new Error("Could not load your ReStart data.");
       }
 
-      const data = await response.json();
-      setHabits(data);
+      const [habitsData, checkInsData] = await Promise.all([
+        habitsResponse.json(),
+        checkInsResponse.json(),
+      ]);
+
+      setHabits(habitsData);
+      setCheckIns(checkInsData);
     } catch {
-      setError("Unable to connect to the backend. Please try again.");
+      setError("Unable to load your data. Please check the backend connection.");
     } finally {
       setLoading(false);
     }
@@ -69,6 +81,7 @@ function App() {
       }
 
       const newHabit = await response.json();
+
       setHabits((current) => [...current, newHabit]);
       setTitle("");
       setCategory("movement");
@@ -80,7 +93,6 @@ function App() {
     }
   }
 
-
   async function handleCheckIn(event) {
     event.preventDefault();
     setCheckInMessage("");
@@ -88,17 +100,15 @@ function App() {
     setCheckInSaving(true);
 
     try {
-      const requestBody = {
-        goal_id: Number(selectedHabit),
-        status,
-        note: note.trim(),
-        barrier: status === "missed" && barrier ? barrier : null,
-      };
-
       const response = await fetch(`${API_URL}/check-ins`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          goal_id: Number(selectedHabit),
+          status,
+          note: note.trim(),
+          barrier: status === "missed" && barrier ? barrier : null,
+        }),
       });
 
       if (!response.ok) {
@@ -112,6 +122,7 @@ function App() {
 
       const savedCheckIn = await response.json();
 
+      setCheckIns((current) => [savedCheckIn, ...current]);
       setNote("");
       setBarrier("");
 
@@ -124,7 +135,7 @@ function App() {
 
         if (!suggestionResponse.ok) {
           throw new Error(
-            "Your check-in was saved, but the suggestion could not be loaded. Please try again later."
+            "Your check-in was saved, but the suggestion could not be loaded."
           );
         }
 
@@ -143,6 +154,26 @@ function App() {
     }
   }
 
+  const completedCount = checkIns.filter(
+    (item) => item.status === "completed"
+  ).length;
+
+  const partialCount = checkIns.filter(
+    (item) => item.status === "partially_completed"
+  ).length;
+
+  const missedCount = checkIns.filter(
+    (item) => item.status === "missed"
+  ).length;
+
+  function getHabitTitle(goalId) {
+    const habit = habits.find((item) => item.id === goalId);
+    return habit ? habit.title : `Habit #${goalId}`;
+  }
+
+  function formatStatus(value) {
+    return value.replaceAll("_", " ");
+  }
 
   return (
     <main>
@@ -150,6 +181,8 @@ function App() {
         <h1>ReStart 🌱</h1>
         <p>Small steps. Healthier habits.</p>
       </header>
+
+      {error && <p role="alert">{error}</p>}
 
       <section>
         <h2>Create a habit</h2>
@@ -238,9 +271,7 @@ function App() {
 
             {status === "missed" && (
               <>
-                <label htmlFor="checkin-barrier">
-                  What got in the way?
-                </label>
+                <label htmlFor="checkin-barrier">What got in the way?</label>
                 <select
                   id="checkin-barrier"
                   value={barrier}
@@ -271,17 +302,70 @@ function App() {
           </form>
         )}
 
-        {checkInMessage && <p>{checkInMessage}</p>}
+        {checkInMessage && <p className="success-message">{checkInMessage}</p>}
+      </section>
+
+      <section>
+        <h2>Your progress</h2>
+        <p>Every check-in is a chance to learn and begin again.</p>
+
+        {loading ? (
+          <p>Loading your progress...</p>
+        ) : (
+          <>
+            <div className="progress-grid">
+              <article className="progress-card">
+                <span>Completed</span>
+                <strong>{completedCount}</strong>
+              </article>
+
+              <article className="progress-card">
+                <span>Partially completed</span>
+                <strong>{partialCount}</strong>
+              </article>
+
+              <article className="progress-card">
+                <span>Missed</span>
+                <strong>{missedCount}</strong>
+              </article>
+            </div>
+
+            <h3>Check-in history</h3>
+
+            {checkIns.length === 0 ? (
+              <p>Your check-ins will appear here when you record them.</p>
+            ) : (
+              <div className="history-list">
+                {checkIns.map((item) => (
+                  <article className="history-card" key={item.id}>
+                    <div className="history-header">
+                      <strong>{getHabitTitle(item.goal_id)}</strong>
+                      <span className={`status status-${item.status}`}>
+                        {formatStatus(item.status)}
+                      </span>
+                    </div>
+
+                    {item.note && <p>{item.note}</p>}
+
+                    {item.barrier && (
+                      <p className="history-detail">
+                        Barrier: {formatStatus(item.barrier)}
+                      </p>
+                    )}
+                  </article>
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </section>
 
       <section>
         <h2>Your habits, your pace</h2>
-        <p>Every small step counts. You can always begin again.</p>
 
-        {error && <p role="alert">{error}</p>}
         {loading && <p>Loading your habits...</p>}
 
-        {!loading && !error && habits.length === 0 && (
+        {!loading && habits.length === 0 && (
           <p>No habits yet. Your first small step starts here!</p>
         )}
 
@@ -292,7 +376,9 @@ function App() {
                 <span className="habit-category">{habit.category}</span>
                 <span className="habit-icon" aria-hidden="true">🌱</span>
               </div>
+
               <h3>{habit.title}</h3>
+
               <p className="habit-target">
                 Daily target: {habit.daily_target} minutes
               </p>
