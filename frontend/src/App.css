@@ -1,0 +1,238 @@
+
+/* Main application layout */
+#root {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #24352c;
+  box-sizing: border-box;
+}
+
+/* Global page styling */
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #f4f7f2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Header */
+header {
+  margin-bottom: 36px;
+}
+
+header h1 {
+  margin: 0 0 8px;
+  color: #26734d;
+  font-size: 2.6rem;
+  font-weight: 750;
+  letter-spacing: -1px;
+}
+
+header p {
+  margin: 0;
+  color: #657268;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* Main content section */
+section {
+  padding: 30px;
+  background: #ffffff;
+  border: 1px solid #e5ece3;
+  border-radius: 20px;
+  box-shadow: 0 6px 24px rgba(36, 53, 44, 0.05);
+}
+
+section > h2 {
+  margin: 0 0 10px;
+  color: #24352c;
+  font-size: 1.6rem;
+}
+
+section > p {
+  color: #657268;
+  line-height: 1.6;
+}
+
+/* Habit card */
+.habit-card {
+  margin-top: 22px;
+  padding: 24px;
+  border: 1px solid #e1e9df;
+  border-radius: 16px;
+  background: #ffffff;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.habit-card:hover {
+  transform: translateY(-3px);
+  border-color: #b8d8bf;
+  box-shadow: 0 10px 24px rgba(38, 115, 77, 0.09);
+}
+
+/* Card header */
+.habit-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.habit-category {
+  display: inline-block;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #e7f3e9;
+  color: #26734d;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.habit-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f0f7ed;
+  font-size: 1.5rem;
+}
+
+/* Card text */
+.habit-card h3 {
+  margin: 18px 0 8px;
+  color: #24352c;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.habit-target {
+  margin: 0;
+  color: #657268;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Buttons — for upcoming interactive features */
+button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  background: #26734d;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+button:hover {
+  background: #1d593b;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:focus-visible {
+  outline: 3px solid #a4d4b0;
+  outline-offset: 3px;
+}
+
+/* Loading, empty and error messages */
+[role="alert"] {
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #fff0ed;
+  color: #a33427;
+  line-height: 1.5;
+}
+
+/* Responsive layout for mobile screens */
+@media (max-width: 600px) {
+  #root {
+    padding: 24px 16px;
+  }
+
+  header {
+    margin-bottom: 24px;
+  }
+
+  header h1 {
+    font-size: 2.1rem;
+  }
+
+  header p {
+    font-size: 1rem;
+  }
+
+  section {
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  section > h2 {
+    font-size: 1.4rem;
+  }
+
+  .habit-card {
+    padding: 18px;
+  }
+}
+
+
+/* Habit creation form */
+.habit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.habit-form label {
+  margin-top: 8px;
+  color: #344b3d;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.habit-form input,
+.habit-form select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d6e1d5;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #24352c;
+  font: inherit;
+}
+
+.habit-form input:focus,
+.habit-form select:focus {
+  border-color: #26734d;
+  outline: 2px solid #d9ecdd;
+}
+
+.habit-form button {
+  margin-top: 12px;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}

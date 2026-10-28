@@ -5,8 +5,18 @@ from sqlalchemy.orm import Session
 from database import engine, Base, get_db,add_barrier_column
 import models
 from ai_service import generate_habit_suggestion
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="ReStart Health API")
+    
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 Base.metadata.create_all(bind=engine)
 add_barrier_column()  # Ensure the barrier column exists in the check_ins table
