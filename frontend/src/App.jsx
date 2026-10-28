@@ -8,10 +8,18 @@ function App() {
   const [habits, setHabits] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("movement");
   const [dailyTarget, setDailyTarget] = useState("10");
   const [saving, setSaving] = useState(false);
+
+  const [selectedHabit, setSelectedHabit] = useState("");
+  const [status, setStatus] = useState("completed");
+  const [note, setNote] = useState("");
+  const [barrier, setBarrier] = useState("");
+  const [checkInMessage, setCheckInMessage] = useState("");
+  const [checkInSaving, setCheckInSaving] = useState(false);
 
   useEffect(() => {
     fetchHabits();
@@ -43,9 +51,7 @@ function App() {
     try {
       const response = await fetch(`${API_URL}/goals`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim(),
           category,
@@ -63,8 +69,7 @@ function App() {
       }
 
       const newHabit = await response.json();
-
-      setHabits((currentHabits) => [...currentHabits, newHabit]);
+      setHabits((current) => [...current, newHabit]);
       setTitle("");
       setCategory("movement");
       setDailyTarget("10");
@@ -72,6 +77,46 @@ function App() {
       setError(error.message || "Could not create the habit.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleCheckIn(event) {
+    event.preventDefault();
+    setCheckInMessage("");
+    setError("");
+    setCheckInSaving(true);
+
+    try {
+      const requestBody = {
+        goal_id: Number(selectedHabit),
+        status,
+        note: note.trim(),
+        barrier: status === "missed" && barrier ? barrier : null,
+      };
+
+      const response = await fetch(`${API_URL}/check-ins`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const details = await response.json();
+        throw new Error(
+          details.detail
+            ? JSON.stringify(details.detail)
+            : "Could not save your check-in."
+        );
+      }
+
+      await response.json();
+      setCheckInMessage("Your daily check-in has been saved! 🌱");
+      setNote("");
+      setBarrier("");
+    } catch (error) {
+      setError(error.message || "Could not save your check-in.");
+    } finally {
+      setCheckInSaving(false);
     }
   }
 
@@ -131,11 +176,85 @@ function App() {
       </section>
 
       <section>
+        <h2>Daily check-in</h2>
+        <p>Progress isn't all-or-nothing. Check in honestly, at your own pace.</p>
+
+        {habits.length === 0 ? (
+          <p>Create a habit first to record a check-in.</p>
+        ) : (
+          <form className="habit-form" onSubmit={handleCheckIn}>
+            <label htmlFor="checkin-habit">Which habit?</label>
+            <select
+              id="checkin-habit"
+              value={selectedHabit}
+              onChange={(event) => setSelectedHabit(event.target.value)}
+              required
+            >
+              <option value="">Choose a habit</option>
+              {habits.map((habit) => (
+                <option key={habit.id} value={habit.id}>
+                  {habit.title}
+                </option>
+              ))}
+            </select>
+
+            <label htmlFor="checkin-status">How did it go?</label>
+            <select
+              id="checkin-status"
+              value={status}
+              onChange={(event) => {
+                setStatus(event.target.value);
+                setBarrier("");
+              }}
+            >
+              <option value="completed">Completed</option>
+              <option value="partially_completed">Partially completed</option>
+              <option value="missed">Missed</option>
+            </select>
+
+            {status === "missed" && (
+              <>
+                <label htmlFor="checkin-barrier">
+                  What got in the way?
+                </label>
+                <select
+                  id="checkin-barrier"
+                  value={barrier}
+                  onChange={(event) => setBarrier(event.target.value)}
+                >
+                  <option value="">Choose an option (optional)</option>
+                  <option value="not_enough_time">Not enough time</option>
+                  <option value="low_energy">Low energy</option>
+                  <option value="forgot">Forgot</option>
+                  <option value="other">Other</option>
+                </select>
+              </>
+            )}
+
+            <label htmlFor="checkin-note">Optional note</label>
+            <textarea
+              id="checkin-note"
+              rows="3"
+              maxLength="300"
+              placeholder="How did today go?"
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+            />
+
+            <button type="submit" disabled={checkInSaving || !selectedHabit}>
+              {checkInSaving ? "Saving..." : "Save daily check-in"}
+            </button>
+          </form>
+        )}
+
+        {checkInMessage && <p>{checkInMessage}</p>}
+      </section>
+
+      <section>
         <h2>Your habits, your pace</h2>
         <p>Every small step counts. You can always begin again.</p>
 
         {error && <p role="alert">{error}</p>}
-
         {loading && <p>Loading your habits...</p>}
 
         {!loading && !error && habits.length === 0 && (
@@ -147,13 +266,9 @@ function App() {
             <article className="habit-card" key={habit.id}>
               <div className="habit-card-header">
                 <span className="habit-category">{habit.category}</span>
-                <span className="habit-icon" aria-hidden="true">
-                  🌱
-                </span>
+                <span className="habit-icon" aria-hidden="true">🌱</span>
               </div>
-
               <h3>{habit.title}</h3>
-
               <p className="habit-target">
                 Daily target: {habit.daily_target} minutes
               </p>

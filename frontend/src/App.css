@@ -236,3 +236,20 @@ button:disabled {
   cursor: wait;
   opacity: 0.7;
 }
+
+
+.habit-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d6e1d5;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #24352c;
+  font: inherit;
+  resize: vertical;
+}
+
+.habit-form textarea:focus {
+  border-color: #26734d;
+  outline: 2px solid #d9ecdd;
+}
