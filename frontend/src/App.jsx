@@ -49,7 +49,9 @@ function App() {
       setHabits(habitsData);
       setCheckIns(checkInsData);
     } catch {
-      setError("Unable to load your data. Please check the backend connection.");
+      setError(
+        "Unable to load your data. Please check the backend connection."
+      );
     } finally {
       setLoading(false);
     }
@@ -63,7 +65,9 @@ function App() {
     try {
       const response = await fetch(`${API_URL}/goals`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           title: title.trim(),
           category,
@@ -73,6 +77,7 @@ function App() {
 
       if (!response.ok) {
         const details = await response.json();
+
         throw new Error(
           details.detail
             ? JSON.stringify(details.detail)
@@ -102,7 +107,9 @@ function App() {
     try {
       const response = await fetch(`${API_URL}/check-ins`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           goal_id: Number(selectedHabit),
           status,
@@ -113,6 +120,7 @@ function App() {
 
       if (!response.ok) {
         const details = await response.json();
+
         throw new Error(
           details.detail
             ? JSON.stringify(details.detail)
@@ -127,7 +135,9 @@ function App() {
       setBarrier("");
 
       if (savedCheckIn.status === "missed") {
-        setCheckInMessage("Check-in saved! Finding a helpful suggestion...");
+        setCheckInMessage(
+          "Check-in saved! Finding a helpful suggestion..."
+        );
 
         const suggestionResponse = await fetch(
           `${API_URL}/check-ins/${savedCheckIn.id}/suggestion`
@@ -165,6 +175,13 @@ function App() {
   const missedCount = checkIns.filter(
     (item) => item.status === "missed"
   ).length;
+
+  const totalCheckIns = checkIns.length;
+
+  const completionPercentage =
+    totalCheckIns === 0
+      ? 0
+      : Math.round((completedCount / totalCheckIns) * 100);
 
   function getHabitTitle(goalId) {
     const habit = habits.find((item) => item.id === goalId);
@@ -234,7 +251,9 @@ function App() {
 
       <section>
         <h2>Daily check-in</h2>
-        <p>Progress isn't all-or-nothing. Check in honestly, at your own pace.</p>
+        <p>
+          Progress isn't all-or-nothing. Check in honestly, at your own pace.
+        </p>
 
         {habits.length === 0 ? (
           <p>Create a habit first to record a check-in.</p>
@@ -265,13 +284,17 @@ function App() {
               }}
             >
               <option value="completed">Completed</option>
-              <option value="partially_completed">Partially completed</option>
+              <option value="partially_completed">
+                Partially completed
+              </option>
               <option value="missed">Missed</option>
             </select>
 
             {status === "missed" && (
               <>
-                <label htmlFor="checkin-barrier">What got in the way?</label>
+                <label htmlFor="checkin-barrier">
+                  What got in the way?
+                </label>
                 <select
                   id="checkin-barrier"
                   value={barrier}
@@ -296,13 +319,18 @@ function App() {
               onChange={(event) => setNote(event.target.value)}
             />
 
-            <button type="submit" disabled={checkInSaving || !selectedHabit}>
+            <button
+              type="submit"
+              disabled={checkInSaving || !selectedHabit}
+            >
               {checkInSaving ? "Saving..." : "Save daily check-in"}
             </button>
           </form>
         )}
 
-        {checkInMessage && <p className="success-message">{checkInMessage}</p>}
+        {checkInMessage && (
+          <p className="success-message">{checkInMessage}</p>
+        )}
       </section>
 
       <section>
@@ -330,16 +358,44 @@ function App() {
               </article>
             </div>
 
+            <div className="completion-summary">
+              <div className="completion-label">
+                <span>Fully completed</span>
+                <strong>{completionPercentage}%</strong>
+              </div>
+
+              <div
+                className="progress-track"
+                role="progressbar"
+                aria-label="Fully completed check-ins"
+                aria-valuenow={completionPercentage}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
+                <div
+                  className="progress-fill"
+                  style={{ width: `${completionPercentage}%` }}
+                />
+              </div>
+
+              <p>
+                {completedCount} of {totalCheckIns} check-ins fully completed.
+              </p>
+            </div>
+
             <h3>Check-in history</h3>
 
             {checkIns.length === 0 ? (
-              <p>Your check-ins will appear here when you record them.</p>
+              <p>
+                Your check-ins will appear here when you record them.
+              </p>
             ) : (
               <div className="history-list">
                 {checkIns.map((item) => (
                   <article className="history-card" key={item.id}>
                     <div className="history-header">
                       <strong>{getHabitTitle(item.goal_id)}</strong>
+
                       <span className={`status status-${item.status}`}>
                         {formatStatus(item.status)}
                       </span>
@@ -374,7 +430,9 @@ function App() {
             <article className="habit-card" key={habit.id}>
               <div className="habit-card-header">
                 <span className="habit-category">{habit.category}</span>
-                <span className="habit-icon" aria-hidden="true">🌱</span>
+                <span className="habit-icon" aria-hidden="true">
+                  🌱
+                </span>
               </div>
 
               <h3>{habit.title}</h3>
