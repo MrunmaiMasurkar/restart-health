@@ -19,3 +19,4 @@ class CheckIn(Base):
     goal_id = Column(Integer, ForeignKey("goals.id"), nullable=False)
     status = Column(String(30), nullable=False)
     note = Column(String(300), nullable=False, default="")
+    barrier = Column(String(50), nullable=True)
