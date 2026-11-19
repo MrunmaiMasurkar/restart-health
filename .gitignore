@@ -1,1 +1,35 @@
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+
+# Secrets and local environment
 .env
+.env.*
+!.env.example
+
+# Local database files (may contain user/test data)
+*.db
+*.sqlite
+*.sqlite3
+
+# Node dependencies and build output
+node_modules/
+dist/
+.vite/
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
